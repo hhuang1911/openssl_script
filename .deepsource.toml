@@ -1,5 +1,5 @@
 version = 1
 
 [[analyzers]]
-name = "shell"
+name = "test-coverage"
 enabled = true
