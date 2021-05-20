@@ -15,5 +15,20 @@ generate_cert()
 	sed -e "/SAMPLE_CERTIFICATE/{r./1.cer" -e "d}" new.csv >> total.csv
 }
 
+generate_cert_copy()
+{
+	var=$1
+	cp -f openssl_csr_san.cnf.template openssl_csr_san.cnf
+	sed -i "s/1234567890AB/$var/g" openssl_csr_san.cnf
+	openssl req -new -key fixed-keys/device/private/qs-1234567890AB.key -out fixkey.csr -config openssl_csr_san.cnf
+	openssl ca -config ./openssl.cnf -extensions device_cert -days 3650 -notext -batch -in ./fixkey.csr -out ./fixkey.cer
+	sed -i 's/-----BEGIN CERTIFICATE-----//g' fixkey.cer
+	sed -i 's/-----END CERTIFICATE-----//g' fixkey.cer
+	tr -d '\n' < fixkey.cer >1.cer
+	cp -f csv.template new.csv
+	sed -i "s/1234567890AB/$var/g" new.csv
+	sed -e "/SAMPLE_CERTIFICATE/{r./1.cer" -e "d}" new.csv >> total.csv
+}
+
 
 cat all-mac.csv | while read a; do generate_cert $a; done
